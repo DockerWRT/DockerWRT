@@ -1,5 +1,3 @@
-.PHONY: all clean
-
 PROXY ?=
 ifeq ($(PROXY),)
 	PROXY_SETTING :=  
@@ -8,28 +6,38 @@ else
 endif
 OPENWRT_URL := https://github.com/openwrt/openwrt.git
 OPENWRT_PATH := openwrt-src
+OPENWRT_BACKUP := openwrt-backup
 
 TAG ?= master
 
 TARGET := x86_64
 
-JOBS := -j4 V=99
+JOBS := -j4
 
-all: openwrt
+VISUAL := "V=99"
 
-toolchain: openwrt-src config
-	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) toolchain/install
+all: clean openwrt
 
-openwrt: openwrt-src config
-	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS)
+feeds:
+	cd $(OPENWRT_PATH) && ./scripts/feeds update -a && ./scripts/feeds install -a
+
+toolchain: openwrt-src feeds config
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install
+
+openwrt: openwrt-src feeds config
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL)
 config:
 	cd $(OPENWRT_PATH) && cp ../products/$(TARGET).config .config
 
 openwrt-src:
-	git clone $(OPENWRT_URL) $(OPENWRT_PATH)
+	if [ ! -d "$(OPENWRT_PATH)" ]; then \
+		git clone $(OPENWRT_URL) $(OPENWRT_PATH); \
+	else \
+		cd $(OPENWRT_PATH) && git pull; \
+	fi
 	cd $(OPENWRT_PATH) && git checkout $(TAG)
 
 clean:
 	cd $(OPENWRT_PATH) && $(MAKE) clean
 
-.PHONY: openwrt	
+.PHONY: openwrt	feeds toolchain config openwrt-src
