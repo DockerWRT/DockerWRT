@@ -19,9 +19,9 @@ VISUAL := "V=99"
 all: clean openwrt
 
 feeds:
-	cd $(OPENWRT_PATH) && ./scripts/feeds update -a && ./scripts/feeds install -a
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && ./scripts/feeds update -a && ./scripts/feeds install -a
 
-toolchain: openwrt-src feeds config
+toolchain: openwrt-src config
 	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install
 
 openwrt: openwrt-src feeds config
@@ -32,10 +32,10 @@ config:
 openwrt-src:
 	if [ ! -d "$(OPENWRT_PATH)" ]; then \
 		git clone $(OPENWRT_URL) $(OPENWRT_PATH); \
+		cd $(OPENWRT_PATH) && git checkout $(TAG) && git checkout -b $(TAG); \
 	else \
-		cd $(OPENWRT_PATH) && git pull; \
+		echo "######## no need to pull"; \
 	fi
-	cd $(OPENWRT_PATH) && git checkout $(TAG)
 
 clean:
 	cd $(OPENWRT_PATH) && $(MAKE) clean
