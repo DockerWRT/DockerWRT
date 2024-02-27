@@ -38,6 +38,6 @@ clean:
 	cd $(OPENWRT_PATH) && $(MAKE) clean
 
 toolchain: openwrt-src
-        $(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install TARGET=$(TARGET)
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install TARGET=$(TARGET)
 
 .PHONY: openwrt	feeds toolchain config openwrt-src
