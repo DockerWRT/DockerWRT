@@ -21,4 +21,4 @@
 
 # sample:
 ## make clean
-## make TARGET=x86_64 BRANCH=openwrt-23.05 PROXY=http://192.168.10.2:1080 toolchain
+## make TARGET=x86_64 TAG=v23.05.2 PROXY=http://192.168.10.2:1080 toolchain
