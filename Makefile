@@ -46,7 +46,7 @@ distclean:
 		cd $(OPENWRT_PATH) && $(MAKE) distclean; \
 	fi
 
-toolchain: openwrt-src config
+toolchain: openwrt-src feeds config
 	if [ -f $(OPENWRT_PATH)/.config ]; then \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install; \
 	fi
