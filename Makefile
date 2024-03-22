@@ -12,7 +12,7 @@ JOBS ?= -j4
 VISUAL ?= V=99
 AUTO_SCRIPT ?= auto_menuconfig.sh
 
-OPENWRT_PATH := openwrt_$(TARGET)_$(TAG)
+OPENWRT_PATH := openwrt_src
 
 openwrt-src:
 	if [ ! -d "$(OPENWRT_PATH)" ]; then \
@@ -26,7 +26,7 @@ feeds: openwrt-src
 	fi
 
 config: openwrt-src
-	cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config && cp ../$(AUTO_SCRIPT) ./ && chmod +x $(AUTO_SCRIPT);
+	cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config;
 
 prepare: openwrt-src feeds config
 	
@@ -48,7 +48,7 @@ distclean:
 	fi
 
 toolchain: openwrt-src feeds config
-	if [ -f $(OPENWRT_PATH)/.config ]; then \
+	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install; \
 	fi
 
