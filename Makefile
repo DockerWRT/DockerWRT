@@ -25,14 +25,13 @@ feeds: openwrt-src
 		cd $(OPENWRT_PATH) && ./scripts/feeds update -a && ./scripts/feeds install -a; \
 	fi
 
-config: openwrt-src
-	cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config;
+config: feeds
+	if [ ! -d $(OPENWRT_PATH)/.config ]; then \
+		cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config; \
+		cd $(OPENWRT_PATH) && make defconfig; \
+	fi
 
-prepare: openwrt-src feeds config
-	
-	@echo "######## Prepared, you need to cd to openwrt path and make menuconfig or use auto_menuconfig.sh"
-
-firmware: 
+firmware: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL); \
 	fi
