@@ -27,8 +27,7 @@ feeds: openwrt-src
 
 config: feeds
 	if [ ! -d $(OPENWRT_PATH)/.config ]; then \
-		cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config; \
-		cd $(OPENWRT_PATH) && make defconfig; \
+		cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config && make defconfig; \
 	fi
 
 firmware: config
