@@ -8,7 +8,7 @@ endif
 OPENWRT_URL := https://github.com/openwrt/openwrt.git
 TARGET ?= "x86_64"
 TAG ?= "v23.05.2"
-JOBS ?= "-j4"
+JOBS ?= 
 VISUAL ?= "V=99"
 AUTO_SCRIPT ?= auto_menuconfig.sh
 
@@ -42,7 +42,7 @@ kernel: toolchain
 
 firmware: kernel
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
-		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(VISUAL); \
+		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL); \
 	fi
 
 clean:
