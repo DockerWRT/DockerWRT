@@ -42,7 +42,7 @@ kernel: toolchain
 
 firmware: kernel
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
-		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL); \
+		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(VISUAL); \
 	fi
 
 clean:
