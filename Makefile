@@ -14,6 +14,8 @@ AUTO_SCRIPT ?= auto_menuconfig.sh
 
 OPENWRT_PATH := openwrt_src
 
+all: firmware
+
 openwrt-src:
 	if [ ! -d "$(OPENWRT_PATH)" ]; then \
 		$(PROXY_SETTING) git clone $(OPENWRT_URL) $(OPENWRT_PATH); \
@@ -35,14 +37,14 @@ toolchain: config
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install; \
 	fi
 
-kernel: toolchain
+kernel: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) target/linux/compile; \
 	fi
 
-firmware: kernel
+firmware: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
-		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL); \
+		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) world; \
 	fi
 
 clean:
@@ -55,5 +57,5 @@ distclean:
 		cd $(OPENWRT_PATH) && $(MAKE) distclean; \
 	fi
 
-.PHONY: openwrt openwrt-src feeds config clean distclean toolchain
+.PHONY: openwrt openwrt-src feeds config clean distclean toolchain kernel firmware all
 
