@@ -12,7 +12,9 @@ JOBS ?=
 VISUAL ?= "V=99"
 AUTO_SCRIPT ?= auto_menuconfig.sh
 
-OPENWRT_PATH := openwrt_src
+OPENWRT_PATH := $(PWD)/openwrt_src
+PRODUCT_VERSION := $(shell date +"%y%m%d%H%M%S")
+OUTPUT_PATH := $(PWD)/output/$(TARGET)/$(PRODUCT_VERSION)
 
 all: firmware
 
@@ -44,7 +46,9 @@ kernel: config
 
 firmware: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
-		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) world; \
+		rm -rf $(OPENWRT_PATH)/bin/*; \
+		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) world && mkdir -p $(OUTPUT_PATH); \
+		cd $(OPENWRT_PATH) && cp -r bin/targets/ $(OUTPUT_PATH)/; \
 	fi
 
 clean:
@@ -54,7 +58,7 @@ clean:
 
 distclean:
 	if [ -d $(OPENWRT_PATH) ]; then \
-		cd $(OPENWRT_PATH) && $(MAKE) distclean; \
+		rm -rf $(OPENWRT_PATH); \
 	fi
 
 .PHONY: openwrt openwrt-src feeds config clean distclean toolchain kernel firmware all
