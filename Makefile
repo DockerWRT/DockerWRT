@@ -7,7 +7,7 @@ endif
 
 OPENWRT_URL := https://github.com/openwrt/openwrt.git
 TARGET ?= "x86_64"
-TAG ?= "v23.05.3"
+TAG ?= "v23.05.2"
 JOBS ?= 
 VISUAL ?= "V=99"
 AUTO_SCRIPT ?= auto_menuconfig.sh
