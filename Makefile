@@ -12,7 +12,7 @@ JOBS ?=
 VISUAL ?= "V=99"
 AUTO_SCRIPT ?= auto_menuconfig.sh
 
-OPENWRT_PATH := $(PWD)/openwrt_src
+OPENWRT_PATH := $(PWD)/src_$(TARGET)
 PRODUCT_VERSION := $(shell date +"%y%m%d%H%M%S")
 OUTPUT_PATH := $(PWD)/output/$(TARGET)/$(PRODUCT_VERSION)
 
@@ -25,9 +25,7 @@ openwrt-src:
 	fi
 
 feeds: openwrt-src
-	if [ ! -d $(OPENWRT_PATH)/feeds ]; then \
-		cd $(OPENWRT_PATH) && ./scripts/feeds update -a && ./scripts/feeds install -a; \
-	fi
+	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \
 
 config: feeds
 	if [ ! -f $(OPENWRT_PATH)/.config ]; then \
