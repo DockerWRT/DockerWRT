@@ -48,7 +48,7 @@ docker: config kernel
 	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_VISUAL) package/docker/clean && $(MAKE) -j1 $(COMPILE_VISUAL) package/docker/compile;
 
 python3: config kernel
-	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_VISUAL) package/python3/clean && $(MAKE) -j1 $(COMPILE_VISUAL) package/python3/compile;
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_VISUAL) package/python3/clean && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) package/python3/compile;
 
 firmware: config docker python3
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
