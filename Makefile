@@ -5,15 +5,16 @@ else
     PROXY_SETTING := export all_proxy=$(CUSTOM_PROXY) && export http_proxy=$(CUSTOM_PROXY) && export https_proxy=$(CUSTOM_PROXY) && 
 endif
 
-OPENWRT_URL := https://github.com/openwrt/openwrt.git
-PRODUCT_TARGET ?= "x86_64"
-OPENWRT_TAG ?= "v23.05.2"
-COMPILE_JOBS ?= 
-COMPILE_VISUAL ?= "V=99"
+CURRENT_TIME	:=	$(shell date +"%y%m%d-%H%M%S")
+
+OPENWRT_URL	:=	https://github.com/openwrt/openwrt.git
+PRODUCT_TARGET	?=	"x86_64"
+OPENWRT_TAG	?=	"v23.05.2"
+COMPILE_JOBS	?=	"-j1"
+COMPILE_VISUAL	?=	"V=99"
 
 OPENWRT_PATH := $(PWD)/src_$(PRODUCT_TARGET)
-PRODUCT_VERSION := $(shell date +"%y%m%d%H%M%S")
-OUTPUT_PATH := $(PWD)/output/$(PRODUCT_TARGET)/$(PRODUCT_VERSION)
+OUTPUT_PATH := $(PWD)/output/$(PRODUCT_TARGET)/$(CURRENT_TIME)
 
 all: firmware
 
@@ -30,11 +31,13 @@ config: feeds
 	if [ ! -f $(OPENWRT_PATH)/.config ]; then \
 		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/.config .config && make defconfig; \
 	fi
+	cd $(OPENWRT_PATH) && sed -i 's/^\(CONFIG_VERSION_NUMBER="\)[^"]*"/\1$(CURRENT_TIME)"/' .config;
 
 toolchain: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) toolchain/install; \
 	fi
+
 
 kernel: config toolchain
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
@@ -50,8 +53,7 @@ python3: config kernel
 firmware: config docker python3
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		rm -rf $(OPENWRT_PATH)/bin/*; \
-		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) world && mkdir -p $(OUTPUT_PATH); \
-		cd $(OPENWRT_PATH) && cp -r bin/targets/ $(OUTPUT_PATH)/; \
+		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) world && mkdir -p $(OUTPUT_PATH) && cp -r bin/targets/ $(OUTPUT_PATH)/; \
 	fi
 
 clean:
