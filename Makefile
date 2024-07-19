@@ -6,13 +6,12 @@ else
 endif
 
 OPENWRT_URL := https://github.com/openwrt/openwrt.git
-TARGET ?= "x86_64"
+PRODUCT_TARGET ?= "x86_64"
 TAG ?= "v23.05.2"
 JOBS ?= 
 VISUAL ?= "V=99"
-AUTO_SCRIPT ?= auto_menuconfig.sh
 
-OPENWRT_PATH := $(PWD)/src_$(TARGET)
+OPENWRT_PATH := $(PWD)/src_$(PRODUCT_TARGET)
 PRODUCT_VERSION := $(shell date +"%y%m%d%H%M%S")
 OUTPUT_PATH := $(PWD)/output/$(TARGET)/$(PRODUCT_VERSION)
 
@@ -37,12 +36,15 @@ toolchain: config
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) toolchain/install; \
 	fi
 
-kernel: config
+kernel: config toolchain
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) target/linux/compile; \
 	fi
 
-firmware: config
+docker: config kernel
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(VISUAL) package/docker/clean && $(MAKE) -j1 $(VISUAL) package/docker/compile;
+
+firmware: config docker
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		rm -rf $(OPENWRT_PATH)/bin/*; \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(JOBS) $(VISUAL) world && mkdir -p $(OUTPUT_PATH); \
