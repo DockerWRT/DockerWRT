@@ -13,7 +13,7 @@ VISUAL ?= "V=99"
 
 OPENWRT_PATH := $(PWD)/src_$(PRODUCT_TARGET)
 PRODUCT_VERSION := $(shell date +"%y%m%d%H%M%S")
-OUTPUT_PATH := $(PWD)/output/$(TARGET)/$(PRODUCT_VERSION)
+OUTPUT_PATH := $(PWD)/output/$(PRODUCT_TARGET)/$(PRODUCT_VERSION)
 
 all: firmware
 
@@ -28,7 +28,7 @@ feeds: openwrt-src
 
 config: feeds
 	if [ ! -f $(OPENWRT_PATH)/.config ]; then \
-		cd $(OPENWRT_PATH) && cp ../products/$(TARGET)/$(TAG)/.config .config && make defconfig; \
+		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(TAG)/.config .config && make defconfig; \
 	fi
 
 toolchain: config
