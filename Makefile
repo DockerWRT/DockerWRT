@@ -5,16 +5,24 @@ else
     PROXY_SETTING := export all_proxy=$(CUSTOM_PROXY) && export http_proxy=$(CUSTOM_PROXY) && export https_proxy=$(CUSTOM_PROXY) && 
 endif
 
-CURRENT_TIME	:=	$(shell date +"%y%m%d-%H%M%S")
+ifeq ($(PRODUCT_TARGET),r2s)
+	K_CONFIG_PATH	:= target/linux/rockchip/armv8/
+	K_PATCHES_PATH	:= target/linux/rockchip/patches-5.15/
+else
+	K_CONFIG_PATH	:=
+	K_PATCHES_PATH	:=
+endif
 
-OPENWRT_URL	:=	https://github.com/openwrt/openwrt.git
-PRODUCT_TARGET	?=	"x86_64"
-OPENWRT_TAG	?=	"v23.05.2"
-COMPILE_JOBS	?=	"-j1"
-COMPILE_VISUAL	?=	"V=99"
+CURRENT_TIME		:=	$(shell date +"%y%m%d-%H%M%S")
 
-OPENWRT_PATH := $(PWD)/src_$(PRODUCT_TARGET)
-OUTPUT_PATH := $(PWD)/output/$(PRODUCT_TARGET)/$(CURRENT_TIME)
+OPENWRT_URL			:=	https://github.com/openwrt/openwrt.git
+PRODUCT_TARGET		?=	"x86_64"
+OPENWRT_TAG			?=	"v23.05.2"
+COMPILE_JOBS		?=	"-j1"
+COMPILE_VISUAL		?=	"V=99"
+
+OPENWRT_PATH		:=	$(PWD)/src_$(PRODUCT_TARGET)
+OUTPUT_PATH			:=	$(PWD)/output/$(PRODUCT_TARGET)/$(CURRENT_TIME)
 
 all: firmware
 
@@ -31,7 +39,16 @@ config: feeds
 	if [ ! -f $(OPENWRT_PATH)/.config ]; then \
 		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/.config .config && make defconfig; \
 	fi
+
 	cd $(OPENWRT_PATH) && sed -i 's/^\(CONFIG_VERSION_NUMBER="\)[^"]*"/\1$(CURRENT_TIME)"/' .config;
+
+	if [ -d "$(OPENWRT_PATH)/$(K_CONFIG_PATH)" ]; then \
+		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/config-* $(K_CONFIG_PATH); \
+	fi
+
+	if [ -d "$(OPENWRT_PATH)/$(K_PATCHES_PATH)" ]; then \
+		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/kernel_patches/* $(K_PATCHES_PATH); \
+	fi
 
 toolchain: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
@@ -45,10 +62,10 @@ kernel: config toolchain
 	fi
 
 docker: config kernel
-	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_VISUAL) package/docker/clean && $(MAKE) -j1 $(COMPILE_VISUAL) package/docker/compile;
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) package/docker/compile;
 
 python3: config kernel
-	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_VISUAL) package/python3/clean && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) package/python3/compile;
+	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) package/python3/compile;
 
 firmware: config docker python3
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \

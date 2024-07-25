@@ -1,0 +1,208 @@
+diff -Naru linux-5.15.137.orig/drivers/usb/serial/option.c linux-5.15.137/drivers/usb/serial/option.c
+--- linux-5.15.137.orig/drivers/usb/serial/option.c	2024-07-25 05:51:53.598241486 +0000
++++ linux-5.15.137/drivers/usb/serial/option.c	2024-07-25 05:50:55.996008529 +0000
+@@ -634,6 +634,33 @@
+ 
+ 
+ static const struct usb_device_id option_ids[] = {
++#if 1 //Added by Quectel
++	{ USB_DEVICE(0x05C6, 0x9090) }, /* Quectel UC15 */
++	{ USB_DEVICE(0x05C6, 0x9003) }, /* Quectel UC20 */
++	{ USB_DEVICE(0x05C6, 0x9215) }, /* Quectel EC20(MDM9215) */
++	{ USB_DEVICE(0x2C7C, 0x0125) }, /* Quectel EC20(MDM9x07)/EC25/EG25 */
++	{ USB_DEVICE(0x2C7C, 0x0121) }, /* Quectel EC21 */
++	{ USB_DEVICE(0x2C7C, 0x0191) }, /* Quectel EG91 */
++	{ USB_DEVICE(0x2C7C, 0x0195) }, /* Quectel EG95 */
++	{ USB_DEVICE(0x2C7C, 0x0306) }, /* Quectel EG06/EP06/EM06 */
++	{ USB_DEVICE(0x2C7C, 0x030B) }, /* Quectel EG065K/EG060K */
++	{ USB_DEVICE(0x2C7C, 0x0514) }, /* Quectel BL EG060K RNDIS Only */
++	{ USB_DEVICE(0x2C7C, 0x0512) }, /* Quectel EG12/EP12/EM12/EG16/EG18 */
++	{ USB_DEVICE(0x2C7C, 0x0296) }, /* Quectel BG96 */
++	{ USB_DEVICE(0x2C7C, 0x0700) }, /* Quectel BG95/BG77/BG600L-M3/BC69 */
++	{ USB_DEVICE(0x2C7C, 0x0435) }, /* Quectel AG35 */
++	{ USB_DEVICE(0x2C7C, 0x0415) }, /* Quectel AG15 */
++	{ USB_DEVICE(0x2C7C, 0x0452) }, /* Quectel AG520 */
++	{ USB_DEVICE(0x2C7C, 0x0455) }, /* Quectel AG550 */
++	{ USB_DEVICE(0x2C7C, 0x0620) }, /* Quectel EG20 */
++	{ USB_DEVICE(0x2C7C, 0x0800) }, /* Quectel RG500/RM500/RG510/RM510 */
++	{ USB_DEVICE(0x2C7C, 0x0900) }, /* Quectel RM500U_CN */
++	{ USB_DEVICE(0x2C7C, 0x0801) }, /* Quectel RG520/RM520/SG520 */
++	{ USB_DEVICE(0x2C7C, 0x6026) }, /* Quectel EC200 */
++	{ USB_DEVICE(0x2C7C, 0x6120) }, /* Quectel UC200 */
++	{ USB_DEVICE(0x2C7C, 0x6000) }, /* Quectel EC200/UC200 */
++	{ .match_flags = USB_DEVICE_ID_MATCH_VENDOR, .idVendor = 0x2C7C }, /* Match All Quectel Modules */
++#endif
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_COLT) },
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA) },
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA_LIGHT) },
+@@ -2294,7 +2321,26 @@
+  * recognizes separately, thus num_port=1.
+  */
+ 
++#if 1 //Added by Quectel
++static void cfmakeraw(struct ktermios *t)
++{
++	t->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
++	t->c_oflag &= ~OPOST;
++	t->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
++	t->c_cflag &= ~(CSIZE|PARENB);
++	t->c_cflag |= CS8;
++	t->c_cc[VMIN] = 1;
++	t->c_cc[VTIME] = 0;
++}
++
++static void option_init_termios(struct tty_struct *tty)
++{
++	cfmakeraw(&tty->termios);
++}
++#endif
++
+ static struct usb_serial_driver option_1port_device = {
++	.init_termios  = option_init_termios,
+ 	.driver = {
+ 		.owner =	THIS_MODULE,
+ 		.name =		"option1",
+@@ -2311,6 +2357,8 @@
+ 	.chars_in_buffer   = usb_wwan_chars_in_buffer,
+ 	.tiocmget          = usb_wwan_tiocmget,
+ 	.tiocmset          = usb_wwan_tiocmset,
++	.get_serial        = usb_wwan_get_serial_info,
++	.set_serial        = usb_wwan_set_serial_info,
+ 	.attach            = option_attach,
+ 	.release           = option_release,
+ 	.port_probe        = usb_wwan_port_probe,
+@@ -2319,6 +2367,9 @@
+ #ifdef CONFIG_PM
+ 	.suspend           = usb_wwan_suspend,
+ 	.resume            = usb_wwan_resume,
++#if 1 //Added by Quectel
++	.reset_resume = usb_wwan_resume,
++#endif
+ #endif
+ };
+ 
+@@ -2343,6 +2394,35 @@
+ 				&serial->interface->cur_altsetting->desc;
+ 	unsigned long device_flags = id->driver_info;
+ 
++#if 1 //Added by Quectel
++	//Quectel UC20's interface 4 can be used as USB Network device
++	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) && serial->dev->descriptor.idProduct == cpu_to_le16(0x9003)
++		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
++		return -ENODEV;
++
++	//Quectel EC20(MDM9215)'s interface 4 can be used as USB Network device
++	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) && serial->dev->descriptor.idProduct == cpu_to_le16(0x9215)
++		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
++		return -ENODEV;
++
++	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2C7C)) {
++		__u16 idProduct = le16_to_cpu(serial->dev->descriptor.idProduct);
++		struct usb_interface_descriptor *intf = &serial->interface->cur_altsetting->desc;
++
++		if (intf->bInterfaceClass != 0xFF || intf->bInterfaceSubClass == 0x42) {
++			//ECM, RNDIS, NCM, MBIM, ACM, UAC, ADB
++			return -ENODEV;
++		}
++
++		if ((idProduct&0xF000) == 0x0000) {
++			//MDM interface 4 is QMI
++			if (intf->bInterfaceNumber == 4 && intf->bNumEndpoints == 3
++				&& intf->bInterfaceSubClass == 0xFF && intf->bInterfaceProtocol == 0xFF)
++				return -ENODEV;
++		}
++	}
++#endif
++
+ 	/* Never bind to the CD-Rom emulation interface	*/
+ 	if (iface_desc->bInterfaceClass == USB_CLASS_MASS_STORAGE)
+ 		return -ENODEV;
+diff -Naru linux-5.15.137.orig/drivers/usb/serial/usb-wwan.h linux-5.15.137/drivers/usb/serial/usb-wwan.h
+--- linux-5.15.137.orig/drivers/usb/serial/usb-wwan.h	2024-07-25 05:51:53.598241486 +0000
++++ linux-5.15.137/drivers/usb/serial/usb-wwan.h	2024-07-25 05:50:55.996008529 +0000
+@@ -15,6 +15,10 @@
+ extern int usb_wwan_tiocmget(struct tty_struct *tty);
+ extern int usb_wwan_tiocmset(struct tty_struct *tty,
+ 			     unsigned int set, unsigned int clear);
++extern void usb_wwan_get_serial_info(struct tty_struct *tty,
++			   struct serial_struct *ss);
++extern int usb_wwan_set_serial_info(struct tty_struct *tty,
++			   struct serial_struct *ss);
+ extern int usb_wwan_write(struct tty_struct *tty, struct usb_serial_port *port,
+ 			  const unsigned char *buf, int count);
+ extern unsigned int usb_wwan_chars_in_buffer(struct tty_struct *tty);
+diff -Naru linux-5.15.137.orig/drivers/usb/serial/usb_wwan.c linux-5.15.137/drivers/usb/serial/usb_wwan.c
+--- linux-5.15.137.orig/drivers/usb/serial/usb_wwan.c	2024-07-25 05:51:53.598241486 +0000
++++ linux-5.15.137/drivers/usb/serial/usb_wwan.c	2024-07-25 05:52:18.523628189 +0000
+@@ -132,6 +132,51 @@
+ }
+ EXPORT_SYMBOL(usb_wwan_tiocmset);
+ 
++void usb_wwan_get_serial_info(struct tty_struct *tty,
++			   struct serial_struct *ss)
++{
++	struct usb_serial_port *port = tty->driver_data;
++
++	ss->line            = port->minor;
++	ss->port            = port->port_number;
++	ss->baud_base       = tty_get_baud_rate(port->port.tty);
++	ss->close_delay	    = jiffies_to_msecs(port->port.close_delay) / 10;
++	ss->closing_wait    = port->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
++				 ASYNC_CLOSING_WAIT_NONE :
++				 jiffies_to_msecs(port->port.closing_wait) / 10;
++}
++EXPORT_SYMBOL(usb_wwan_get_serial_info);
++
++int usb_wwan_set_serial_info(struct tty_struct *tty,
++			   struct serial_struct *ss)
++{
++	struct usb_serial_port *port = tty->driver_data;
++	unsigned int closing_wait, close_delay;
++	int retval = 0;
++
++	close_delay = msecs_to_jiffies(ss->close_delay * 10);
++	closing_wait = ss->closing_wait == ASYNC_CLOSING_WAIT_NONE ?
++			ASYNC_CLOSING_WAIT_NONE :
++			msecs_to_jiffies(ss->closing_wait * 10);
++
++	mutex_lock(&port->port.mutex);
++
++	if (!capable(CAP_SYS_ADMIN)) {
++		if ((close_delay != port->port.close_delay) ||
++		    (closing_wait != port->port.closing_wait))
++			retval = -EPERM;
++		else
++			retval = -EOPNOTSUPP;
++	} else {
++		port->port.close_delay  = close_delay;
++		port->port.closing_wait = closing_wait;
++	}
++
++	mutex_unlock(&port->port.mutex);
++	return retval;
++}
++EXPORT_SYMBOL(usb_wwan_set_serial_info);
++
+ int usb_wwan_write(struct tty_struct *tty, struct usb_serial_port *port,
+ 		   const unsigned char *buf, int count)
+ {
+@@ -432,6 +477,19 @@
+ 			  usb_sndbulkpipe(serial->dev, endpoint) | dir,
+ 			  buf, len, callback, ctx);
+ 
++#if 1 //Added by Quectel for Zero Packet
++	if (dir == USB_DIR_OUT) {
++		if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) && serial->dev->descriptor.idProduct == cpu_to_le16(0x9090))
++			urb->transfer_flags |= URB_ZERO_PACKET;
++		if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) && serial->dev->descriptor.idProduct == cpu_to_le16(0x9003))
++			urb->transfer_flags |= URB_ZERO_PACKET;
++		if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) && serial->dev->descriptor.idProduct == cpu_to_le16(0x9215))
++			urb->transfer_flags |= URB_ZERO_PACKET;
++		if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2C7C))
++			urb->transfer_flags |= URB_ZERO_PACKET;
++	}
++#endif
++
+ 	if (intfdata->use_zlp && dir == USB_DIR_OUT)
+ 		urb->transfer_flags |= URB_ZERO_PACKET;
+ 
