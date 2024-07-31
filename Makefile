@@ -9,8 +9,8 @@ ifeq ($(PRODUCT_TARGET),r2s)
 	K_CONFIG_PATH	:= target/linux/rockchip/armv8/
 	K_PATCHES_PATH	:= target/linux/rockchip/patches-5.15/
 else
-	K_CONFIG_PATH	:=
-	K_PATCHES_PATH	:=
+	K_CONFIG_PATH	:=	none
+	K_PATCHES_PATH	:=	none
 endif
 
 CURRENT_TIME		:=	$(shell date +"%y%m%d-%H%M%S")
