@@ -33,19 +33,20 @@ http {
 	#UCI_HTTP_CONFIG
 	include conf.d/*.conf;
 
-        # New server block for proxy
-        server {
-            listen 8080;
-            server_name localhost;
+	# New server block for proxy
+	resolver 223.5.5.5 114.114.114.114 valid=300s;
+	server {
+		listen 8080;
+		server_name localhost;
 
-            location / {
-                set $backend "home-ai.net";
-                proxy_pass http://$backend;
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-            }
-        }
+		location / {
+			set $backend "home-ai.net";
+			proxy_pass http://$backend;
+			proxy_set_header Host $host;
+			proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header X-Forwarded-Proto $scheme;
+		}
+	}
 
 }
