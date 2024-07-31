@@ -13,6 +13,7 @@ else
 	K_PATCHES_PATH	:=	none
 endif
 
+
 CURRENT_TIME		:=	$(shell date +"%y%m%d-%H%M%S")
 
 OPENWRT_URL			:=	https://github.com/openwrt/openwrt.git
@@ -32,12 +33,20 @@ openwrt-src:
 		cd $(OPENWRT_PATH) && git checkout $(OPENWRT_TAG) && git checkout -b $(OPENWRT_TAG); \
 	fi
 
-feeds: openwrt-src
+package: openwrt-src
+	if [ -d "products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/package" ]; then \
+		cd $(OPENWRT_PATH) && cp -r ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/package/* package/; \
+	fi
+	if [ -f "products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/feeds.conf.default" ]; then \
+		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/feeds.conf.default ./; \
+	fi
+
+feeds: package
 	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \
 
 config: feeds
 	if [ ! -f $(OPENWRT_PATH)/.config ]; then \
-		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/.config .config && make defconfig; \
+		cd $(OPENWRT_PATH) && cp ../products/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/.config .config;\
 	fi
 
 	cd $(OPENWRT_PATH) && sed -i 's/^\(CONFIG_VERSION_NUMBER="\)[^"]*"/\1$(CURRENT_TIME)"/' .config;
