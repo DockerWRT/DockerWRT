@@ -24,7 +24,9 @@ endef
 
 define Package/home-ai-custom/install
 	$(INSTALL_DIR) $(1)/etc/nginx
-	$(INSTALL_BIN) ./files/* $(1)/etc/nginx/
+	$(INSTALL_BIN) ./files/uci.conf.template $(1)/etc/nginx/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/01_init_product $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,home-ai-custom))

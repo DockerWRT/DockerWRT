@@ -1,0 +1,4 @@
+#!/bin/sh
+PASSWORD=$(openssl passwd -1 "homeai")
+sed -i "s|^root::|root:$PASSWORD:|" /etc/shadow
+
