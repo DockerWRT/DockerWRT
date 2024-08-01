@@ -35,11 +35,11 @@ openwrt-src:
 	fi
 
 package: openwrt-src
-	if [ -d "$(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/package" ]; then \
-		cd $(OPENWRT_PATH) && cp -r $(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/package/* package/; \
+	if [ -d "$(PRODUCT_PATH)/package" ]; then \
+		cd $(OPENWRT_PATH) && cp -r $(PRODUCT_PATH)/package/* package/; \
 	fi
-	if [ -f "$(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/feeds.conf.default" ]; then \
-		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/feeds.conf.default ./; \
+	if [ -f "$(PRODUCT_PATH)/feeds.conf.default" ]; then \
+		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/feeds.conf.default ./; \
 	fi
 
 feeds: package
