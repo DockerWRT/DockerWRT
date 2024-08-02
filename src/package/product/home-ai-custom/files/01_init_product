@@ -1,4 +1,8 @@
 #!/bin/sh
+
 PASSWORD=$(openssl passwd -1 "homeai")
 sed -i "s|^root::|root:$PASSWORD:|" /etc/shadow
+
+uci set system.@system[0].hostname='HomeAI'
+uci commit system
 

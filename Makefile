@@ -41,6 +41,7 @@ package: openwrt-src
 	if [ -f "$(PRODUCT_PATH)/feeds.conf.default" ]; then \
 		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/feeds.conf.default ./; \
 	fi
+	cd $(OPENWRT_PATH) && sed -i '/Powered by/c\home-ai.net' feeds/luci/themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/footer.ut
 
 feeds: package
 	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \
