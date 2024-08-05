@@ -22,7 +22,8 @@ OPENWRT_TAG			?=	"v23.05.2"
 COMPILE_JOBS		?=	"-j1"
 COMPILE_VISUAL		?=	"V=99"
 
-PRODUCT_PATH	:=	$(PWD)/src
+PRODUCT_PATH        :=	$(PWD)/src
+CUSTOM_FILE_PATH    :=  $(PWD)/src/package/product/home-ai-custom/files
 OPENWRT_PATH		:=	$(PWD)/build_$(PRODUCT_TARGET)
 OUTPUT_PATH			:=	$(PWD)/output/$(PRODUCT_TARGET)/$(CURRENT_TIME)
 
@@ -41,6 +42,8 @@ package: openwrt-src
 	if [ -f "$(PRODUCT_PATH)/feeds.conf.default" ]; then \
 		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/feeds.conf.default ./; \
 	fi
+	cp $(CUSTOM_FILE_PATH)/config/dropbear.config $(OPENWRT_PATH)/package/network/services/dropbear/files/;
+	cp $(CUSTOM_FILE_PATH)/config/rpcd.config $(OPENWRT_PATH)/package/system/rpcd/files/;
 
 feeds: package
 	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \
