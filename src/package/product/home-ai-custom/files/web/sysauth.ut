@@ -21,7 +21,7 @@
     <a style="font-size: 24px; font-weight: bold; display: block; text-align: center;">click to enter↓</a>
     <a id="localServiceLink">AI-GPT</a>
 </div>
-<br><br><br><br><br><br>
+<br><br><br>
 
 <form method="post">
 	{% if (fuser): %}
@@ -87,7 +87,7 @@
 		});
 	}
 
-	document.getElementById('localServiceLink').href = 'http://' + window.location.hostname + ':8080';
+	document.getElementById('localServiceLink').href = 'https://' + window.location.hostname + ':8080';
 //]]></script>
 
 {% include('footer') %}

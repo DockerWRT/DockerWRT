@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+                <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+                <meta http-equiv="Pragma" content="no-cache" />
+                <meta http-equiv="Expires" content="0" />
+                <style type="text/css">
+                        body { background: white; font-family: arial, helvetica, sans-serif; }
+                        a { color: black; }
+
+                        @media (prefers-color-scheme: dark) {
+                                body { background: black; }
+                                a { color: white; }
+                        }
+                </style>
+        </head>
+        <body>
+        <ul>
+            <li><a href="cgi-bin/luci/">设备管理</a></li>
+            <li><a id="localServiceLink" href="#">AI-GPT</a></li>
+        </ul>
+
+        <script type="text/javascript">
+            document.getElementById('localServiceLink').href = 'https://' + window.location.hostname + ':8080';
+        </script>
+        </body>
+<style>
+    #localServiceLink {
+        font-size: 48px;
+        font-weight: bold;
+        display: block;
+        text-align: center;
+        color: green;
+    }
+</style>
+
+</html>

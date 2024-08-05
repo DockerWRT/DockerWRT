@@ -27,6 +27,8 @@ define Package/home-ai-custom/install
 	$(INSTALL_BIN) ./files/uci.conf.template $(1)/etc/nginx/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/01_init_product $(1)/etc/uci-defaults/
+	$(INSTALL_DIR) $(1)/www
+	$(INSTALL_BIN) ./files/web/index.html $(1)/www/
 	$(INSTALL_DIR) $(1)/usr/share/ucode/luci/template/
 	$(INSTALL_BIN) ./files/web/sysauth.ut $(1)/usr/share/ucode/luci/template/
 	$(INSTALL_DIR) $(1)/usr/share/ucode/luci/template/themes/openwrt2020/

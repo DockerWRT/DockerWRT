@@ -94,4 +94,3 @@ distclean:
 	fi
 
 .PHONY: openwrt openwrt-src feeds config clean distclean toolchain kernel firmware all
-

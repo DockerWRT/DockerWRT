@@ -51,8 +51,9 @@ http {
 	}
 	proxy_cache_path /tmp/portal_catch levels=1:2 keys_zone=portal_cache:100m;
 	server {
-		listen 0.0.0.0:8080;
-
+		listen 0.0.0.0:8080 ssl;
+		ssl_certificate /etc/nginx/conf.d/_lan.crt;
+		ssl_certificate_key /etc/nginx/conf.d/_lan.key;
 		location / {
 			proxy_pass http://home-ai.net;
 			proxy_http_version 1.1;
