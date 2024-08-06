@@ -11,6 +11,7 @@ define Package/home-ai-custom
   CATEGORY:=product
   TITLE:=Home AI Custom Package
   DEPENDS:=+nginx-util +luci +luci-base +luci-lib-jsonc +luci-theme-openwrt-2020
+  INSTALL:=1
 endef
 
 define Package/home-ai-custom/description
@@ -26,7 +27,7 @@ define Package/home-ai-custom/install
 	$(INSTALL_DIR) $(1)/etc/nginx
 	$(INSTALL_BIN) ./files/uci.conf.template $(1)/etc/nginx/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/01_init_product $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) ./files/init/01_init_product $(1)/etc/uci-defaults/
 	$(INSTALL_DIR) $(1)/www
 	$(INSTALL_BIN) ./files/web/index.html $(1)/www/
 	$(INSTALL_DIR) $(1)/usr/share/ucode/luci/template/

@@ -37,13 +37,14 @@ openwrt-src:
 
 package: openwrt-src
 	if [ -d "$(PRODUCT_PATH)/package" ]; then \
-		cd $(OPENWRT_PATH) && cp -r $(PRODUCT_PATH)/package/* package/; \
+		cd $(OPENWRT_PATH) && rm -rf package/product && cp -r $(PRODUCT_PATH)/package/* package/; \
 	fi
 	if [ -f "$(PRODUCT_PATH)/feeds.conf.default" ]; then \
 		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/feeds.conf.default ./; \
 	fi
 	cp $(CUSTOM_FILE_PATH)/config/dropbear.config $(OPENWRT_PATH)/package/network/services/dropbear/files/;
 	cp $(CUSTOM_FILE_PATH)/config/rpcd.config $(OPENWRT_PATH)/package/system/rpcd/files/;
+	cp $(CUSTOM_FILE_PATH)/init/login.sh $(OPENWRT_PATH)/package/base-files/files/usr/libexec/;
 
 feeds: package
 	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \
