@@ -37,6 +37,8 @@ define Package/home-ai-custom/install
 	$(INSTALL_BIN) ./files/web/header.ut $(1)/usr/share/ucode/luci/template/themes/openwrt2020/
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include/
 	$(INSTALL_BIN) ./files/web/10_system.js $(1)/www/luci-static/resources/view/status/include/
+	$(INSTALL_DIR) $(1)/www/luci-static/openwrt2020/
+	$(INSTALL_BIN) ./files/web/logo.* $(1)/www/luci-static/openwrt2020/
 endef
 
 $(eval $(call BuildPackage,home-ai-custom))
