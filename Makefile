@@ -45,6 +45,8 @@ package: openwrt-src
 	cp $(CUSTOM_FILE_PATH)/config/dropbear.config $(OPENWRT_PATH)/package/network/services/dropbear/files/;
 	cp $(CUSTOM_FILE_PATH)/config/rpcd.config $(OPENWRT_PATH)/package/system/rpcd/files/;
 	cp $(CUSTOM_FILE_PATH)/init/login.sh $(OPENWRT_PATH)/package/base-files/files/usr/libexec/;
+	cp $(CUSTOM_FILE_PATH)/init/shadow $(OPENWRT_PATH)/package/base-files/files/etc/;
+	cp $(CUSTOM_FILE_PATH)/init/passwd $(OPENWRT_PATH)/package/base-files/files/etc/;
 
 feeds: package
 	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \

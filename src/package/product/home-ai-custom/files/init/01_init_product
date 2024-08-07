@@ -1,11 +1,4 @@
 #!/bin/sh
 
-PASSWORD=$(openssl passwd -1 "aLvFJQHtNkLe2J+/W2lLvcUFXqczcvuZ")
-sed -i "s|^root::|root:$PASSWORD:|" /etc/shadow
-
-/usr/sbin/useradd -m -G users -s /bin/ash user
-PASSWORD=$(openssl passwd -1 "homeai")
-sed -i "s|^user:[^:]*:|user:$PASSWORD:|" /etc/shadow
-
 uci set system.@system[0].hostname='HomeAI'
 uci commit system
