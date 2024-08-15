@@ -34,21 +34,21 @@ http {
 	include conf.d/*.conf;
 
 	# New server block for proxy
-	resolver 223.5.5.5 114.114.114.114 valid=300s;
-	server {
-		listen 0.0.0.0:8081;
-		server_name localhost;
+	resolver 223.5.5.5 114.114.114.114 valid=30s;
+	#server {
+	#	listen 0.0.0.0:8081;
+	#	server_name localhost;
 
-		location / {
-			set $backend "home-ai.net";
-			proxy_pass http://$backend;
-			proxy_http_version 1.1;
-			proxy_set_header Host $host;
-			proxy_set_header X-Real-IP $remote_addr;
-			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-			proxy_set_header X-Forwarded-Proto $scheme;
-		}
-	}
+	#	location / {
+	#		set $backend "home-ai.net";
+	#		proxy_pass http://$backend;
+	#		proxy_http_version 1.1;
+	#		proxy_set_header Host $host;
+	#		proxy_set_header X-Real-IP $remote_addr;
+	#		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	#		proxy_set_header X-Forwarded-Proto $scheme;
+	#	}
+	#}
 	proxy_cache_path /tmp/portal_catch levels=1:2 keys_zone=portal_cache:100m;
 	server {
 		listen 0.0.0.0:8080 ssl;
@@ -58,11 +58,11 @@ http {
 			set $backend "home-ai.net";
 			proxy_pass http://$backend;
 			proxy_http_version 1.1;
-			proxy_set_header Host $host;
-			proxy_cache_bypass $http_upgrade;
-			proxy_redirect off;
-			proxy_set_header X-Real-IP $remote_addr;
-			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			#proxy_set_header Host $host;
+			#proxy_cache_bypass $http_upgrade;
+			#proxy_redirect off;
+			#proxy_set_header X-Real-IP $remote_addr;
+			#proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		}
 
 		proxy_cache portal_cache;
