@@ -1,0 +1,71 @@
+# Consider using UCI or creating files in /etc/nginx/conf.d/ for configuration.
+# Parsing UCI configuration is skipped if uci set nginx.global.uci_enable=false
+# For details see: https://openwrt.org/docs/guide-user/services/webserver/nginx
+# UCI_CONF_VERSION=1.2
+
+worker_processes auto;
+
+user root;
+
+include module.d/*.module;
+
+events {}
+
+http {
+	access_log off;
+	log_format openwrt
+		'$request_method $scheme://$host$request_uri => $status'
+		' (${body_bytes_sent}B in ${request_time}s) <- $http_referer';
+
+	include mime.types;
+	default_type application/octet-stream;
+	sendfile on;
+
+	client_max_body_size 128M;
+	large_client_header_buffers 2 1k;
+
+	gzip on;
+	gzip_vary on;
+	gzip_proxied any;
+
+	root /www;
+
+	#UCI_HTTP_CONFIG
+	include conf.d/*.conf;
+
+	# New server block for proxy
+	resolver 223.5.5.5 114.114.114.114 valid=30s;
+	#server {
+	#	listen 0.0.0.0:8081;
+	#	server_name localhost;
+
+	#	location / {
+	#		set $backend "home-ai.net";
+	#		proxy_pass http://$backend;
+	#		proxy_http_version 1.1;
+	#		proxy_set_header Host $host;
+	#		proxy_set_header X-Real-IP $remote_addr;
+	#		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	#		proxy_set_header X-Forwarded-Proto $scheme;
+	#	}
+	#}
+	proxy_cache_path /tmp/portal_catch levels=1:2 keys_zone=portal_cache:100m;
+	server {
+		listen 0.0.0.0:8080 ssl;
+		ssl_certificate /etc/nginx/conf.d/_lan.crt;
+		ssl_certificate_key /etc/nginx/conf.d/_lan.key;
+		location / {
+			set $backend "home-ai.net";
+			proxy_pass http://$backend;
+			proxy_http_version 1.1;
+			#proxy_set_header Host $host;
+			#proxy_cache_bypass $http_upgrade;
+			#proxy_redirect off;
+			#proxy_set_header X-Real-IP $remote_addr;
+			#proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		}
+
+		proxy_cache portal_cache;
+		proxy_cache_valid 200 1h;
+	}
+}
