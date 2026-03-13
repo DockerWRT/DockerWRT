@@ -2,3 +2,44 @@
 
 uci set system.@system[0].hostname='HOMEAI'
 uci commit system
+
+AI_DIR="/usr/share/ai-agent"
+
+if [ -f "$AI_DIR/config/rpcd.config" ]; then
+	cp -f "$AI_DIR/config/rpcd.config" /etc/config/rpcd
+fi
+
+if [ -f "$AI_DIR/config/dropbear.config" ]; then
+	cp -f "$AI_DIR/config/dropbear.config" /etc/config/dropbear
+fi
+
+if [ -f "$AI_DIR/system/login.sh" ]; then
+	cp -f "$AI_DIR/system/login.sh" /usr/libexec/login.sh
+	chmod 0755 /usr/libexec/login.sh
+fi
+
+if [ -f "$AI_DIR/system/passwd" ]; then
+	cp -f "$AI_DIR/system/passwd" /etc/passwd
+	chmod 0644 /etc/passwd
+fi
+
+if [ -f "$AI_DIR/system/shadow" ]; then
+	cp -f "$AI_DIR/system/shadow" /etc/shadow
+	chmod 0600 /etc/shadow
+fi
+
+if [ -f "$AI_DIR/web/index.html" ]; then
+	cp -f "$AI_DIR/web/index.html" /www/index.html
+fi
+
+if [ -f "$AI_DIR/web/logo.png" ]; then
+	cp -f "$AI_DIR/web/logo.png" /www/luci-static/openwrt2020/logo.png
+fi
+
+if [ -f "$AI_DIR/web/logo.svg" ]; then
+	cp -f "$AI_DIR/web/logo.svg" /www/luci-static/openwrt2020/logo.svg
+fi
+
+/usr/bin/picoclaw onboard
+
+exit 0

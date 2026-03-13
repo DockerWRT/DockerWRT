@@ -2,7 +2,7 @@ CUSTOM_PROXY ?=
 ifeq ($(CUSTOM_PROXY),)
     PROXY_SETTING :=  
 else
-    PROXY_SETTING := export all_proxy=$(CUSTOM_PROXY) && export http_proxy=$(CUSTOM_PROXY) && export https_proxy=$(CUSTOM_PROXY) && 
+    PROXY_SETTING := export all_proxy=$(CUSTOM_PROXY) && export http_proxy=$(CUSTOM_PROXY) && export https_proxy=$(CUSTOM_PROXY) && export GOPROXY=https://goproxy.cn,direct &&
 endif
 
 ifeq ($(PRODUCT_TARGET),r2s)
@@ -23,7 +23,6 @@ COMPILE_JOBS		?=	"-j1"
 COMPILE_VISUAL		?=	"V=99"
 
 PRODUCT_PATH        :=	$(PWD)/src
-CUSTOM_FILE_PATH    :=  $(PWD)/src/package/product/home-ai-custom/files
 OPENWRT_PATH		:=	$(PWD)/build_$(PRODUCT_TARGET)
 OUTPUT_PATH			:=	$(PWD)/output/$(PRODUCT_TARGET)/$(CURRENT_TIME)
 
@@ -36,17 +35,10 @@ openwrt-src:
 	fi
 
 package: openwrt-src
-	if [ -d "$(PRODUCT_PATH)/package" ]; then \
-		cd $(OPENWRT_PATH) && rm -rf package/product && cp -r $(PRODUCT_PATH)/package/* package/; \
-	fi
+	cd $(OPENWRT_PATH) && git checkout feeds.conf.default && cd -;
 	if [ -f "$(PRODUCT_PATH)/feeds.conf.default" ]; then \
-		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/feeds.conf.default ./; \
+		cd $(OPENWRT_PATH) && echo "src-link product $(PRODUCT_PATH)/package/product" >> feeds.conf.default; \
 	fi
-	cp $(CUSTOM_FILE_PATH)/config/dropbear.config $(OPENWRT_PATH)/package/network/services/dropbear/files/;
-	cp $(CUSTOM_FILE_PATH)/config/rpcd.config $(OPENWRT_PATH)/package/system/rpcd/files/;
-	cp $(CUSTOM_FILE_PATH)/init/login.sh $(OPENWRT_PATH)/package/base-files/files/usr/libexec/;
-	cp $(CUSTOM_FILE_PATH)/init/shadow $(OPENWRT_PATH)/package/base-files/files/etc/;
-	cp $(CUSTOM_FILE_PATH)/init/passwd $(OPENWRT_PATH)/package/base-files/files/etc/;
 
 feeds: package
 	cd $(OPENWRT_PATH) && $(PROXY_SETTING) ./scripts/feeds update -a && $(PROXY_SETTING) ./scripts/feeds install -a; \
@@ -58,13 +50,13 @@ config: feeds
 
 	cd $(OPENWRT_PATH) && sed -i 's/^\(CONFIG_VERSION_NUMBER="\)[^"]*"/\1$(CURRENT_TIME)"/' .config;
 
-	if [ -d "$(OPENWRT_PATH)/$(K_CONFIG_PATH)" ]; then \
-		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/config-* $(K_CONFIG_PATH); \
-	fi
+#	if [ -d "$(OPENWRT_PATH)/$(K_CONFIG_PATH)" ]; then \
+#		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/config-* $(K_CONFIG_PATH); \
+#	fi
 
-	if [ -d "$(OPENWRT_PATH)/$(K_PATCHES_PATH)" ]; then \
-		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/kernel_patches/* $(K_PATCHES_PATH); \
-	fi
+#	if [ -d "$(OPENWRT_PATH)/$(K_PATCHES_PATH)" ]; then \
+#		cd $(OPENWRT_PATH) && cp $(PRODUCT_PATH)/$(PRODUCT_TARGET)/$(OPENWRT_TAG)/kernel_patches/* $(K_PATCHES_PATH); \
+#	fi
 
 toolchain: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
@@ -83,7 +75,8 @@ docker: config kernel
 python3: config kernel
 	$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) package/python3/compile;
 
-firmware: config docker python3
+# firmware: config docker python3
+firmware: config
 	if [ -d "$(OPENWRT_PATH)" ] && [ -d $(OPENWRT_PATH)/feeds ] && [ -f $(OPENWRT_PATH)/.config ]; then \
 		rm -rf $(OPENWRT_PATH)/bin/*; \
 		$(PROXY_SETTING) cd $(OPENWRT_PATH) && $(MAKE) $(COMPILE_JOBS) $(COMPILE_VISUAL) world && mkdir -p $(OUTPUT_PATH) && cp -r bin/targets/ $(OUTPUT_PATH)/; \

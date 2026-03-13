@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+USE_PROCD=1
+NAME=picoclaw-launcher
+PROG=/usr/bin/picoclaw-launcher
+
+start_service() {
+	[ -x "$PROG" ] || return 1
+
+	procd_open_instance
+	procd_set_param command "$PROG" "-public"
+	procd_set_param respawn
+	procd_close_instance
+}
+
+stop_service() {
+        killall -9 picoclaw
+}
