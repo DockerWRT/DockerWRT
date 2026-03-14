@@ -40,6 +40,7 @@ define Build/Prepare
 	# 准备 workspace
 	rm -rf $(PKG_BUILD_DIR)/cmd/picoclaw/internal/onboard/workspace
 	cp -r $(PKG_BUILD_DIR)/workspace $(PKG_BUILD_DIR)/cmd/picoclaw/internal/onboard/workspace
+	cp ./files/logo_with_text.png $(PKG_BUILD_DIR)/web/frontend/public/logo_with_text.png
 endef
 
 # 完全自定义构建过程，不使用 GoPackage/Build/Compile
