@@ -40,6 +40,10 @@ if [ -f "$AI_DIR/web/logo.svg" ]; then
 	cp -f "$AI_DIR/web/logo.svg" /www/luci-static/openwrt2020/logo.svg
 fi
 
+if [ -f "$AI_DIR/web/wechat_id.jpg" ]; then
+	cp -f "$AI_DIR/web/wechat_id.jpg" /www/wechat_id.jpg
+fi
+
 /usr/bin/picoclaw onboard
 
 exit 0

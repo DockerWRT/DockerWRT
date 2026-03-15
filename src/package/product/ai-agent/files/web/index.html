@@ -11,19 +11,31 @@
             body {
                 background: white;
                 font-family: arial, helvetica, sans-serif;
-                margin: 24px;
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
-            a { color: black; }
+            .center-container {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
 
-            ul {
+            .center-list {
                 list-style: none;
                 padding: 0;
                 margin: 0;
                 text-align: center;
             }
 
-            li { margin-bottom: 14px; }
+            .center-list li { margin-bottom: 18px; }
+
+            a { color: black; }
 
             #localServiceLink {
                 font-size: 32px;
@@ -32,23 +44,84 @@
                 text-decoration: none;
             }
 
+            #contactLink {
+                cursor: pointer;
+                font-size: 18px;
+                color: #0b7d27;
+                text-decoration: underline;
+                position: relative;
+            }
+
+            #contactLink:hover #wechatQR,
+            #contactLink:focus #wechatQR,
+            #contactLink.active #wechatQR {
+                display: block;
+            }
+
+            #wechatQR {
+                display: none;
+                position: absolute;
+                left: 50%;
+                top: 120%;
+                transform: translateX(-50%);
+                max-width: 220px;
+                width: 100%;
+                height: auto;
+                border: 1px solid #eee;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                background: #fff;
+                z-index: 10;
+            }
+
             @media (prefers-color-scheme: dark) {
                 body { background: black; }
                 a { color: white; }
                 #localServiceLink { color: #6ff58d; }
+                #contactLink { color: #6ff58d; }
+                #wechatQR { background: #222; }
             }
         </style>
     </head>
     <body>
-        <ul>
-            <li><a href="cgi-bin/luci/">设备管理</a></li>
-            <li><a id="localServiceLink" href="#" target="_blank" rel="noopener noreferrer">AI智能体</a></li>
-        </ul>
+        <div class="center-container">
+            <ul class="center-list">
+                <li><a href="cgi-bin/luci/">设备管理</a></li>
+                <li><a id="localServiceLink" href="#" target="_blank" rel="noopener noreferrer">AI智能体</a></li>
+            </ul>
+            <div style="text-align:center; margin-top: 32px;">
+                <a id="contactLink" href="/wechat_id.jpg" target="_blank">
+                    e-mail:6101010520@126.com tel(wechat):+86-17318636680
+                    <img id="wechatQR" src="/wechat_id.jpg" alt="微信二维码">
+                </a>
+            </div>
+        </div>
 
         <script>
             (function() {
                 var protocol = "http://";
                 document.getElementById("localServiceLink").href = protocol + window.location.hostname + ":18800";
+
+                // 展示二维码
+                var contactLink = document.getElementById('contactLink');
+                var qr = document.getElementById('wechatQR');
+                var showQR = function(e) {
+                    qr.style.display = 'block';
+                };
+                var hideQR = function(e) {
+                    qr.style.display = 'none';
+                };
+                contactLink.addEventListener('mouseenter', showQR);
+                contactLink.addEventListener('mouseleave', hideQR);
+                contactLink.addEventListener('focus', showQR);
+                contactLink.addEventListener('blur', hideQR);
+                contactLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (qr.style.display === 'block') {
+                        qr.style.display = 'none';
+                    } else {
+                        qr.style.display = 'block';
+                    }
+                });
             })();
         </script>
     </body>

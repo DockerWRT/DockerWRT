@@ -38,6 +38,7 @@ define Package/ai-agent/install
 	$(INSTALL_DATA) ./files/web/index.html $(1)/usr/share/ai-agent/web/index.html
 	$(INSTALL_DATA) ./files/web/logo.png $(1)/usr/share/ai-agent/web/logo.png
 	$(INSTALL_DATA) ./files/web/logo.svg $(1)/usr/share/ai-agent/web/logo.svg
+	$(INSTALL_DATA) ./files/web/wechat_id.jpg $(1)/usr/share/ai-agent/web/wechat_id.jpg
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/init/01_init_product $(1)/etc/uci-defaults/01_ai_agent
